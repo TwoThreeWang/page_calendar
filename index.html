@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>墨水屏日历</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        body {
+            color: #000000;
+            background-color: #ffffff;
+            font-family: Arial, sans-serif;
+        }
+
+        .box {
+            display: flex;
+            display: -webkit-flex;
+            flex-direction: row;
+            flex-wrap: wrap-reverse;
+            justify-content: space-around;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .weather {
+            width: 40%;
+        }
+
+        .weather-title {
+            color: #fff;
+            font-size: 50px;
+            border-top: 1px solid #000000;
+            line-height: 55px;
+        }
+
+        .weather-title span {
+            background-color: #000000;
+            color: #FFFFFF;
+            padding: 0px 10px;
+        }
+
+        .weather-conn {
+            font-size: 30px;
+            text-align: center;
+            font-weight: bold;
+            line-height: 70px;
+        }
+
+        .weather-conn-small {
+            font-size: 20px;
+            text-align: center;
+            line-height: 50px;
+        }
+
+        .date-time {
+            width: 60%;
+        }
+
+        .time {
+            width: 100%;
+            margin: auto;
+            text-align: center;
+            font-size: 16rem;
+            font-family: 'Oswald', sans-serif;
+            font-weight: 700;
+        }
+
+        .date {
+            width: 100%;
+            text-align: center;
+            font-size: 50px;
+            font-weight: bold;
+        }
+
+        @media (max-width: 1200px) {
+            .date-time {
+                width: 100%;
+            }
+
+            .weather {
+                width: 100%;
+                margin-top: 20px;
+            }
+
+            .time {
+                font-size: 10rem;
+                font-family: 'Oswald', sans-serif;
+                font-weight: 500;
+            }
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+            /* Chrome Safari */
+        }
+
+        body {
+            scrollbar-width: none;
+            /* firefox */
+            -ms-overflow-style: none;
+            /* IE 10+ */
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <div class="weather">
+            <div class="weather-item">
+                <div class="weather-title">
+                    <span>今天</span>
+                </div>
+                <br>
+                <center>
+                    <div id="tips"></div>
+                </center>
+                <div class="weather-conn box">
+                    <div id="tmp_0">气温</div>
+                    <div id="cond_0">天气状况</div>
+                    <div id="wind_0">风向&风力</div>
+                </div>
+                <div class="weather-conn box">
+                    <div id="pop">降水概率</div>
+                    <div id="uv_index">紫外线强度指数</div>
+                    <div id="air">空气质量</div>
+                </div>
+                <div class="weather-conn-small">
+                    <div id="s_time">日出 日落</div>
+                    <div id="drsg">穿衣建议</div>
+                    <div id="uv">防晒</div>
+                    <div id="sport">运动</div>
+                </div>
+                <br>
+            </div>
+            <div class="weather-item">
+                <div class="weather-title">
+                    <span>明天</span>
+                </div>
+                <br>
+                <div class="weather-conn box">
+                    <div id="tmp_1">气温</div>
+                    <div id="cond_1">天气状况</div>
+                    <div id="wind_1">风向&风力</div>
+                </div>
+                <br>
+            </div>
+            <br>
+            <div class="weather-item">
+                <div class="weather-title">
+                    <span>后天</span>
+                </div>
+                <br>
+                <div class="weather-conn box">
+                    <div id="tmp_2">气温</div>
+                    <div id="cond_2">天气状况</div>
+                    <div id="wind_2">风向&风力</div>
+                </div>
+                <br>
+                <div class="weather-conn-small">
+                    <small>
+                        <div id="update_time" onclick="weatherUpdate()" title="天气信息每天早上七点自动更新，点击手动刷新天气">天气信息更新时间</div>
+                    </small>
+                </div>
+            </div>
+        </div>
+        <div class="date-time">
+            <div class="time" id="time" onclick="changeScreen()" title="点击切换全屏">00:00</div>
+            <div class="date box">
+                <div id="date">1994 年 7 月 2 日</div>
+                <div id="week">星期日</div>
+                <div id="CalendarData"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取阳历
+        function update() {
+            var date = new Date();
+            var utc8DiffMinutes = date.getTimezoneOffset() + 480;
+            date.setMinutes(date.getMinutes() + utc8DiffMinutes);
+
+            var timeString = date.getHours() + ':' + ('0' + date.getMinutes()).slice(-2);
+            var dateString = (date.getFullYear()) + ' 年 ' + (date.getMonth() + 1) + ' 月 ' + date.getDate() + ' 日 ';
+            var weekList = ['日', '一', '二', '三', '四', '五', '六'];
+            // var weekJpList = [' 日曜日', ' 月曜日', ' 火曜日', ' 水曜日', ' 木曜日', ' 金曜日', ' 土曜日'];
+            var weekString = '星期' + weekList[date.getDay()];
+
+            document.getElementById("time").innerHTML = timeString;
+            document.getElementById("date").innerHTML = ' ' + dateString + ' ';
+            document.getElementById("week").innerHTML = ' ' + weekString + ' ';
+            if (timeString == '07:00') {
+                weatherUpdate()
+            }
+        }
+        update();
+        setInterval("update()", 60 * 1000);
+    </script>
+    <script>
+        // 获取农历信息
+        var CalendarData = new Array(100);
+        var madd = new Array(12);
+        var tgString = "甲乙丙丁戊己庚辛壬癸";
+        var dzString = "子丑寅卯辰巳午未申酉戌亥";
+        var numString = "一二三四五六七八九十";
+        var monString = "正二三四五六七八九十冬腊";
+        var weekString = "日一二三四五六";
+        var sx = "鼠牛虎兔龙蛇马羊猴鸡狗猪";
+        var cYear, cMonth, cDay, TheDate;
+        CalendarData = new Array(0xA4B, 0x5164B, 0x6A5, 0x6D4, 0x415B5, 0x2B6, 0x957, 0x2092F, 0x497, 0x60C96, 0xD4A,
+            0xEA5, 0x50DA9, 0x5AD, 0x2B6, 0x3126E, 0x92E, 0x7192D, 0xC95, 0xD4A, 0x61B4A, 0xB55, 0x56A, 0x4155B,
+            0x25D, 0x92D, 0x2192B, 0xA95, 0x71695, 0x6CA, 0xB55, 0x50AB5, 0x4DA, 0xA5B, 0x30A57, 0x52B, 0x8152A,
+            0xE95, 0x6AA, 0x615AA, 0xAB5, 0x4B6, 0x414AE, 0xA57, 0x526, 0x31D26, 0xD95, 0x70B55, 0x56A, 0x96D,
+            0x5095D, 0x4AD, 0xA4D, 0x41A4D, 0xD25, 0x81AA5, 0xB54, 0xB6A, 0x612DA, 0x95B, 0x49B, 0x41497, 0xA4B,
+            0xA164B, 0x6A5, 0x6D4, 0x615B4, 0xAB6, 0x957, 0x5092F, 0x497, 0x64B, 0x30D4A, 0xEA5, 0x80D65, 0x5AC,
+            0xAB6, 0x5126D, 0x92E, 0xC96, 0x41A95, 0xD4A, 0xDA5, 0x20B55, 0x56A, 0x7155B, 0x25D, 0x92D, 0x5192B,
+            0xA95, 0xB4A, 0x416AA, 0xAD5, 0x90AB5, 0x4BA, 0xA5B, 0x60A57, 0x52B, 0xA93, 0x40E95);
+        madd[0] = 0;
+        madd[1] = 31;
+        madd[2] = 59;
+        madd[3] = 90;
+        madd[4] = 120;
+        madd[5] = 151;
+        madd[6] = 181;
+        madd[7] = 212;
+        madd[8] = 243;
+        madd[9] = 273;
+        madd[10] = 304;
+        madd[11] = 334;
+
+        function GetBit(m, n) {
+            return (m >> n) & 1;
+        }
+
+        function e2c() {
+            TheDate = (arguments.length != 3) ? new Date() : new Date(arguments[0], arguments[1], arguments[2]);
+            var total, m, n, k;
+            var isEnd = false;
+            var tmp = TheDate.getYear();
+            if (tmp < 1900) {
+                tmp += 1900;
+            }
+            total = (tmp - 1921) * 365 + Math.floor((tmp - 1921) / 4) + madd[TheDate.getMonth()] + TheDate.getDate() -
+                38;
+
+            if (TheDate.getYear() % 4 == 0 && TheDate.getMonth() > 1) {
+                total++;
+            }
+            for (m = 0;; m++) {
+                k = (CalendarData[m] < 0xfff) ? 11 : 12;
+                for (n = k; n >= 0; n--) {
+                    if (total <= 29 + GetBit(CalendarData[m], n)) {
+                        isEnd = true;
+                        break;
+                    }
+                    total = total - 29 - GetBit(CalendarData[m], n);
+                }
+                if (isEnd) break;
+            }
+            cYear = 1921 + m;
+            cMonth = k - n + 1;
+            cDay = total;
+            if (k == 12) {
+                if (cMonth == Math.floor(CalendarData[m] / 0x10000) + 1) {
+                    cMonth = 1 - cMonth;
+                }
+                if (cMonth > Math.floor(CalendarData[m] / 0x10000) + 1) {
+                    cMonth--;
+                }
+            }
+        }
+
+        function GetcDateString() {
+            var tmp = "";
+            tmp += tgString.charAt((cYear - 4) % 10);
+            tmp += dzString.charAt((cYear - 4) % 12);
+            tmp += "(";
+            tmp += sx.charAt((cYear - 4) % 12);
+            tmp += ")年 ";
+            if (cMonth < 1) {
+                tmp += "(闰)";
+                tmp += monString.charAt(-cMonth - 1);
+            } else {
+                tmp += monString.charAt(cMonth - 1);
+            }
+            tmp += "月";
+            tmp += (cDay < 11) ? "初" : ((cDay < 20) ? "十" : ((cDay < 30) ? "廿" : "三十"));
+            if (cDay % 10 != 0 || cDay == 10) {
+                tmp += numString.charAt((cDay - 1) % 10);
+            }
+            return tmp;
+        }
+
+        function GetLunarDay(solarYear, solarMonth, solarDay) {
+            //solarYear = solarYear<1900?(1900+solarYear):solarYear;
+            if (solarYear < 1921 || solarYear > 2020) {
+                return "";
+            } else {
+                solarMonth = (parseInt(solarMonth) > 0) ? (solarMonth - 1) : 11;
+                e2c(solarYear, solarMonth, solarDay);
+                return GetcDateString();
+            }
+        }
+        //调用
+        var D = new Date();
+        var yy = D.getFullYear();
+        var mm = D.getMonth() + 1;
+        var dd = D.getDate();
+        var ww = D.getDay();
+        var ss = parseInt(D.getTime() / 1000);
+        if (yy < 100) yy = "19" + yy;
+
+        function GetCNDate() {
+            return GetLunarDay(yy, mm, dd);
+        }
+        var d = GetCNDate();
+        document.getElementById("CalendarData").innerHTML = ' ' + d + ' ';
+    </script>
+    <script>
+        // 获取网址参数
+        function getQueryVariable(variable) {
+            var query = window.location.search.substring(1);
+            var vars = query.split("&");
+            for (var i = 0; i < vars.length; i++) {
+                var pair = vars[i].split("=");
+                if (pair[0] == variable) {
+                    return pair[1];
+                }
+            }
+            return (false);
+        }
+    </script>
+    <script>
+        // 获取天气信息
+        var local = 'beijing';
+        if (getQueryVariable("local")) {
+            local = getQueryVariable("local");
+        }
+
+        function getUrl() {
+            var keys = ['', '', '']; // 这里填入你自己申请的和风天气key，为防止超过免费次数，建议多整几个KEY
+            var index = Math.floor((Math.random() * keys.length));
+            var key = keys[index];
+            var forecast_url = 'https://free-api.heweather.net/s6/weather/forecast?location=' + local + '&key=' + key;
+            var lifestyle_url = 'https://free-api.heweather.net/s6/weather/lifestyle?location=' + local + '&key=' + key;
+            return [forecast_url, lifestyle_url];
+        }
+
+        function getData(res, type) {
+            res_json = JSON.parse(res);
+            if (res_json['HeWeather6'][0]['status'] !== 'ok') {
+                // key次数限制，换key重试
+                setTimeout(weatherUpdate(), 3 * 1000);
+            } else {
+                document.getElementById("tips").innerHTML = '';
+                if (type == 'forecast') {
+                    j_res = res_json['HeWeather6'][0]['daily_forecast'];
+                    document.getElementById("tmp_0").innerHTML = j_res[0]['tmp_min'] + ' - ' + j_res[0]['tmp_max'] +
+                        '℃';
+                    document.getElementById("tmp_1").innerHTML = j_res[1]['tmp_min'] + ' - ' + j_res[1]['tmp_max'] +
+                        '℃';
+                    document.getElementById("tmp_2").innerHTML = j_res[2]['tmp_min'] + ' - ' + j_res[2]['tmp_max'] +
+                        '℃';
+                    document.getElementById("cond_0").innerHTML = j_res[0]['cond_txt_d'] + ' / ' + j_res[0][
+                        'cond_txt_n'
+                    ];
+                    document.getElementById("cond_1").innerHTML = j_res[1]['cond_txt_d'] + ' / ' + j_res[1][
+                        'cond_txt_n'
+                    ];
+                    document.getElementById("cond_2").innerHTML = j_res[2]['cond_txt_d'] + ' / ' + j_res[2][
+                        'cond_txt_n'
+                    ];
+                    document.getElementById("wind_0").innerHTML = j_res[0]['wind_dir'] + j_res[0]['wind_sc'] + '级 ' +
+                        j_res[
+                            0]['wind_spd'] + '公里/小时';
+                    document.getElementById("wind_1").innerHTML = j_res[1]['wind_dir'] + j_res[0]['wind_sc'] + '级 ' +
+                        j_res[
+                            1]['wind_spd'] + '公里/小时';
+                    document.getElementById("wind_2").innerHTML = j_res[2]['wind_dir'] + j_res[0]['wind_sc'] + '级 ' +
+                        j_res[
+                            2]['wind_spd'] + '公里/小时';
+                    document.getElementById("pop").innerHTML = '降水概率' + j_res[0]['pop'] + '%';
+                    document.getElementById("uv_index").innerHTML = '紫外线强度 ' + j_res[0]['uv_index'];
+                    document.getElementById("s_time").innerHTML = res_json['HeWeather6'][0]['basic']['location'] +
+                        ' 日出 ' +
+                        j_res[0]['sr'] + ' 日落 ' + j_res[0]['ss'];
+                } else {
+                    j_res = res_json['HeWeather6'][0]['lifestyle'];
+                    document.getElementById("air").innerHTML = '空气质量' + j_res[7]['brf'];
+                    document.getElementById("drsg").innerHTML = '穿衣建议：' + j_res[1]['txt'];
+                    document.getElementById("uv").innerHTML = '防晒：' + j_res[5]['txt'];
+                    document.getElementById("sport").innerHTML = j_res[3]['brf'] + '运动：' + j_res[3]['txt'];
+                    document.getElementById("update_time").innerHTML = '天气信息更新时间：' + res_json['HeWeather6'][0]['update']
+                        [
+                            'loc'
+                        ];
+                }
+            }
+        }
+
+        function getWeather(url, type) {
+            // get 请求数据
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange =
+                function () {
+                    if (xhr.readyState === 4) { //请求成功
+                        if (xhr.status === 200) { //响应成功
+                            getData(xhr.response, type);
+                        }
+                    }
+                }
+            xhr.open('get', url, true); //1.请求方式  2.发送到哪去  3.是否为异步请求 是true 否 flase
+            xhr.send(null);
+        };
+
+        function weatherUpdate() {
+            var urls = getUrl();
+            var forecast_url = urls[0];
+            var lifestyle_url = urls[1];
+            getWeather(forecast_url, 'forecast');
+            getWeather(lifestyle_url, 'lifestyle');
+        };
+        weatherUpdate();
+    </script>
+    <script>
+        //全屏
+        var flag = false;
+
+        function fullScreen() {
+            var el = document.documentElement;
+            var rfs = el.requestFullScreen || el.webkitRequestFullScreen || el.mozRequestFullScreen || el
+                .msRequestFullScreen;
+
+            //typeof rfs != "undefined" && rfs
+            if (rfs) {
+                rfs.call(el);
+            } else if (typeof window.ActiveXObject !== "undefined") {
+                //for IE，这里其实就是模拟了按下键盘的F11，使浏览器全屏
+                var wscript = new ActiveXObject("WScript.Shell");
+                if (wscript != null) {
+                    wscript.SendKeys("{F11}");
+                }
+            }
+            flag = true;
+        };
+        //退出全屏
+        function exitScreen() {
+            var el = document;
+            var cfs = el.cancelFullScreen || el.webkitCancelFullScreen || el.mozCancelFullScreen || el.exitFullScreen;
+
+            //typeof cfs != "undefined" && cfs
+            if (cfs) {
+                cfs.call(el);
+            } else if (typeof window.ActiveXObject !== "undefined") {
+                //for IE，这里和fullScreen相同，模拟按下F11键退出全屏
+                var wscript = new ActiveXObject("WScript.Shell");
+                if (wscript != null) {
+                    wscript.SendKeys("{F11}");
+                }
+            }
+            flag = false;
+        }
+
+        function changeScreen() {
+            if (flag) {
+                exitScreen()
+            } else {
+                fullScreen()
+            }
+        }
+    </script>
+</body>
+
+</html>
