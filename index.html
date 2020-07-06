@@ -25,6 +25,11 @@
             height: 100%;
         }
 
+        .title_box {
+            justify-content: space-between !important;
+            flex-wrap: wrap !important;
+        }
+
         .weather {
             width: 40%;
         }
@@ -46,7 +51,7 @@
             font-size: 30px;
             text-align: center;
             font-weight: bold;
-            line-height: 70px;
+            line-height: 50px;
         }
 
         .weather-conn-small {
@@ -105,15 +110,18 @@
             overflow-x: hidden;
             overflow-y: auto;
         }
-        .body-darkmode{
+
+        .body-darkmode {
             color: #ffffff !important;
             background-color: #000000 !important;
         }
-        .body-darkmode .weather-title span{
+
+        .body-darkmode .weather-title span {
             background-color: #ffffff !important;
             color: #000000 !important;
         }
-        .body-darkmode .weather-title{
+
+        .body-darkmode .weather-title {
             border-top: 1px solid #ffffff !important;
         }
     </style>
@@ -122,41 +130,51 @@
 <body id="body" class="">
     <div class="box" id="box">
         <div class="weather">
+            <center>
+                <div id="tips"></div>
+            </center>
             <div class="weather-item">
-                <div class="weather-title">
+                <div class="weather-title box title_box">
                     <span>今天</span>
+                    <div id="s_time_0" class="weather-conn-small">日出 日落</div>
                 </div>
                 <br>
-                <center>
-                    <div id="tips"></div>
-                </center>
                 <div class="weather-conn box">
                     <div id="tmp_0">气温</div>
                     <div id="cond_0">天气状况</div>
                     <div id="wind_0">风向&风力</div>
                 </div>
-                <div class="weather-conn box">
-                    <div id="pop">降水概率</div>
-                    <div id="uv_index">紫外线强度指数</div>
-                    <div id="air">空气质量</div>
+                <div class="weather-conn box" id="today_s">
+                    <div id="pop_0">降水概率</div>
+                    <div id="uv_index_0">紫外线强度指数</div>
+                    <div id="air_0">空气质量</div>
                 </div>
+                <br>
                 <div class="weather-conn-small">
-                    <div id="s_time">日出 日落</div>
-                    <div id="drsg">穿衣建议</div>
-                    <div id="uv">防晒</div>
-                    <div id="sport">运动</div>
+                    <div id="today_more_s">
+                        <div id="drsg_0">穿衣建议</div>
+                        <div id="uv_0">防晒</div>
+                    </div>
+                    <div id="sport_0">运动</div>
                 </div>
                 <br>
             </div>
             <div class="weather-item">
-                <div class="weather-title">
+                <div class="weather-title box title_box">
                     <span>明天</span>
+                    <div id="s_time_1" class="weather-conn-small">日出 日落</div>
                 </div>
                 <br>
                 <div class="weather-conn box">
                     <div id="tmp_1">气温</div>
                     <div id="cond_1">天气状况</div>
                     <div id="wind_1">风向&风力</div>
+                </div>
+                <div id="tomorrow">
+                    <div class="weather-conn box">
+                        <div id="pop_1">降水概率</div>
+                        <div id="uv_index_1">紫外线强度指数</div>
+                    </div>
                 </div>
                 <br>
             </div>
@@ -174,7 +192,7 @@
                 <br>
                 <div class="weather-conn-small">
                     <small>
-                        <div id="update_time" onclick="weatherUpdate()" title="天气信息每天早上七点自动更新，点击手动刷新天气">天气信息更新时间</div>
+                        <div id="update_time" onclick="weatherUpdate()" title="天气信息自动更新，点击可手动刷新天气">天气信息更新时间</div>
                     </small>
                 </div>
             </div>
@@ -203,26 +221,29 @@
         }
     </script>
     <script>
-    // 夜间模式
-    var darkmode_type = 0;
-    function darkmode(){
-        if (getQueryVariable("darkmode")) {
-            return;
+        // 夜间模式
+        var darkmode_type = 0;
+
+        function darkmode() {
+            if (getQueryVariable("darkmode")) {
+                return;
+            };
+            var date = new Date();
+            var now_hour = date.getHours();
+            if ((now_hour >= '20' || now_hour <= '05') && darkmode_type == 0) {
+                // 开启夜间模式
+                console.log('开启');
+                document.getElementById("body").classList.add("body-darkmode");
+                document.getElementById("today_more_s").style.display = "none";
+                darkmode_type = 1;
+            } else if (darkmode_type == 1 && now_hour > '05' && now_hour < '20') {
+                console.log('关闭');
+                document.getElementById("body").classList.remove("body-darkmode");
+                document.getElementById("today_more_s").style.display = "";
+                darkmode_type = 0;
+            };
         };
-        var date = new Date();
-        var now_hour = date.getHours();
-        if ((now_hour >= '20' || now_hour <= '05') && darkmode_type == 0) {
-            // 开启夜间模式
-            console.log('开启');
-            document.getElementById("body").classList.add("body-darkmode");
-            darkmode_type = 1;
-        }else if(darkmode_type == 1 && now_hour > '05' && now_hour < '20'){
-            console.log('关闭');
-            document.getElementById("body").classList.remove("body-darkmode");
-            darkmode_type = 0;
-        };
-    };
-    darkmode();
+        darkmode();
     </script>
     <script>
         // 获取阳历
@@ -243,7 +264,7 @@
             if (timeString == '07:30' || timeString == '09:30' || timeString == '12:30' || timeString == '19:30') {
                 weatherUpdate()
             };
-            darkmode(); 
+            darkmode();
         }
         update();
         setInterval("update()", 60 * 1000);
@@ -376,7 +397,7 @@
         }
 
         function getUrl() {
-            var keys = ['', '', '']; // 这里填入你自己申请的和风天气key，为防止超过免费次数，建议多整几个KEY
+            var keys = ['这里填写你自己申请的和风天气KEY'];
             var index = Math.floor((Math.random() * keys.length));
             var key = keys[index];
             var forecast_url = 'https://free-api.heweather.net/s6/weather/forecast?location=' + local + '&key=' + key;
@@ -417,21 +438,23 @@
                     document.getElementById("wind_2").innerHTML = j_res[2]['wind_dir'] + j_res[0]['wind_sc'] + '级 ' +
                         j_res[
                             2]['wind_spd'] + '公里/小时';
-                    document.getElementById("pop").innerHTML = '降水概率' + j_res[0]['pop'] + '%';
-                    document.getElementById("uv_index").innerHTML = '紫外线强度 ' + j_res[0]['uv_index'];
-                    document.getElementById("s_time").innerHTML = res_json['HeWeather6'][0]['basic']['location'] +
+                    document.getElementById("pop_0").innerHTML = '降水概率' + j_res[0]['pop'] + '%';
+                    document.getElementById("pop_1").innerHTML = '降水概率' + j_res[1]['pop'] + '%';
+                    document.getElementById("uv_index_0").innerHTML = '紫外线强度 ' + j_res[0]['uv_index'];
+                    document.getElementById("uv_index_1").innerHTML = '紫外线强度 ' + j_res[1]['uv_index'];
+                    document.getElementById("s_time_0").innerHTML = res_json['HeWeather6'][0]['basic']['location'] +
                         ' 日出 ' +
                         j_res[0]['sr'] + ' 日落 ' + j_res[0]['ss'];
+                    document.getElementById("s_time_1").innerHTML = ' 日出 ' + j_res[1]['sr'] + ' 日落 ' + j_res[1]['ss'];
                 } else {
                     j_res = res_json['HeWeather6'][0]['lifestyle'];
-                    document.getElementById("air").innerHTML = '空气质量' + j_res[7]['brf'];
-                    document.getElementById("drsg").innerHTML = '穿衣建议：' + j_res[1]['txt'];
-                    document.getElementById("uv").innerHTML = '防晒：' + j_res[5]['txt'];
-                    document.getElementById("sport").innerHTML = j_res[3]['brf'] + '运动：' + j_res[3]['txt'];
-                    document.getElementById("update_time").innerHTML = '天气信息更新时间：' + res_json['HeWeather6'][0]['update']
-                        [
-                            'loc'
-                        ];
+                    document.getElementById("air_0").innerHTML = '空气质量' + j_res[7]['brf'];
+                    document.getElementById("drsg_0").innerHTML = '穿衣建议：' + j_res[1]['txt'];
+                    document.getElementById("uv_0").innerHTML = '防晒：' + j_res[5]['txt'];
+                    document.getElementById("sport_0").innerHTML = j_res[3]['brf'] + '运动：' + j_res[3]['txt'];
+                    document.getElementById("update_time").innerHTML = '和风天气提供天气信息 更新时间：' + res_json['HeWeather6'][0][
+                        'update'
+                    ]['loc'];
                 }
             }
         }
